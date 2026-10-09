@@ -131,7 +131,7 @@ def build() -> dict:
     for terrain, name, folder in TERRAINS:
         folders = [folder] + ([f"{folder}2"] if (R1 / f"{folder}2").exists() else [])
         for f in folders:
-            items.append(item(f"all-{f}", f"{name}全部候选（{f}，带编号）", "只是参考，不用选。", [("all", numbered_sheet(f), "")], None, scale=1, wide=True))
+            items.append(item(f"all-{f}", f"{name}全部候选（{f}，带编号）", "只是参考，不用选。", [("all", numbered_sheet(f), "")], None, scale=1, wide=True, ref=True))
     items.append(item("castle", "城堡格（按座位换成粉 / 黄 / 绿 / 蓝）",
                       "原图背后是灰色天空，导出时换成了草地。全部候选见「城堡全部候选」。",
                       [(f"c{i}", four_colors("castle", i), label) for i, label in
@@ -142,8 +142,8 @@ def build() -> dict:
                       [(f"k{i}", four_colors("king", i), label) for i, label in
                        ((SELECTION["king"], "白胡子、拿权杖（推荐）"), (17, "白胡子、圆脸"), (33, "胡子更长"), (48, "棕胡子"))],
                       f"k{SELECTION['king']}", scale=1))
-    items.append(item("all-castle", "城堡全部候选（带编号）", "只是参考。", [("all", numbered_sheet("castle"), "")], None, scale=1, wide=True))
-    items.append(item("all-king", "国王全部候选（带编号）", "只是参考。", [("all", numbered_sheet("king"), "")], None, scale=1, wide=True))
+    items.append(item("all-castle", "城堡全部候选（带编号）", "只是参考。", [("all", numbered_sheet("castle"), "")], None, scale=1, wide=True, ref=True))
+    items.append(item("all-king", "国王全部候选（带编号）", "只是参考。", [("all", numbered_sheet("king"), "")], None, scale=1, wide=True, ref=True))
     night = SELECTION["scene"]["night"]
     day = SELECTION["scene"]["day"]
     items.append(item("scene-night", "牌桌背景 · 夜间（城堡阳台看王国）", "512×288，按整数倍放大铺满牌桌；首页主图也用它。",

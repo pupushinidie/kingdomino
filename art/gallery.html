@@ -91,7 +91,9 @@
       section.className = `item${item.wide ? " wide" : ""}${choice.pick === "redo" ? " redo" : choice.pick ? " done" : ""}`;
       section.innerHTML = `<h2></h2><div class="note"></div><div class="cands"></div>
         <div class="redo-row"><button class="redo">都不满意，重画</button><textarea placeholder="备注（想要什么样，重画时用）"></textarea></div>`;
-      section.querySelector("h2").innerHTML = `${item.title}<small>${item.kind === "choice" ? "规则确认" : `${item.candidates.length} 个候选`}</small>`;
+      section.querySelector("h2").innerHTML = `${item.title}<small>${item.ref ? "参考，不用选" : item.kind === "choice" ? "规则确认" : `${item.candidates.length} 个候选`}</small>`;
+      // 参考项（全部候选的总览）只看不选
+      if (item.ref) section.querySelector(".redo-row").remove();
       section.querySelector(".note").textContent = item.note ?? "";
       const cands = section.querySelector(".cands");
       for (const cand of item.candidates) {
@@ -106,10 +108,12 @@
         box.querySelector(".label").textContent = `${cand.id} · ${cand.label ?? ""}`;
         if (cand.recommended) box.insertAdjacentHTML("beforeend", `<span class="rec">推荐</span>`);
         const button = box.querySelector("button");
+        if (item.ref) { button.remove(); cands.append(box); continue; }
         if (choice.pick === cand.id) { button.classList.add("on"); button.textContent = "已选"; }
         button.onclick = () => { const s = load(); s[item.id] = { ...(s[item.id] ?? {}), pick: cand.id }; save(s); render(); };
         cands.append(box);
       }
+      if (item.ref) { items.append(section); continue; }
       const redo = section.querySelector(".redo");
       const note = section.querySelector("textarea");
       note.value = choice.note ?? "";
@@ -125,7 +129,8 @@
     const state = load();
     const lines = [`【${data.title}】`];
     let done = 0;
-    for (const item of data.items) {
+    const choosable = data.items.filter((item) => !item.ref);
+    for (const item of choosable) {
       const choice = state[item.id] ?? {};
       let text = "（未选）";
       if (choice.pick === "redo") text = "都不满意，重画";
@@ -137,7 +142,7 @@
       lines.push(`- ${item.title}：${text}${choice.note ? `；备注：${choice.note}` : ""}`);
     }
     document.getElementById("summary").value = lines.join("\n");
-    document.getElementById("progress").textContent = `已选 ${done} / ${data.items.length}`;
+    document.getElementById("progress").textContent = `已选 ${done} / ${choosable.length}`;
   }
 
   document.getElementById("copy").onclick = async () => {
