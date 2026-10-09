@@ -385,6 +385,15 @@ export function redactGameForViewer(state: GameState, viewerId: string): GameSta
   return { ...rest, current, deck: [], setAside: [], deckCount: deck.length, setAsideCount: setAside.length };
 }
 
+/** 正在行动的人现在能做的所有命令（不含提前放置）；不是他的回合返回空数组。测试和陪玩脚本用。 */
+export function legalActions(state: GameState, playerId: string): GameCommand[] {
+  if (state.phase === "finished" || state.players[state.currentPlayer]?.id !== playerId) return [];
+  if (state.step === "pick") return selectableSlots(state).map((slot) => ({ type: "PICK", slot }));
+  const slot = state.current[state.active]!;
+  const options = legalPlacements(state.players[state.currentPlayer]!.kingdom, domino(slot.n), state.config.size);
+  return options.length > 0 ? options.map((placement) => ({ type: "PLACE", a: placement.a, b: placement.b })) : [{ type: "DISCARD" }];
+}
+
 /** 新排或第一排里还能选的位置（界面高亮用）。 */
 export function selectableSlots(state: GameState): number[] {
   return state.step === "pick" && state.phase !== "finished" ? freeSlots(pickRow(state)) : [];

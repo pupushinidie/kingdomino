@@ -6,6 +6,7 @@ export {
   createGame,
   defaultConfig,
   LINE_SIZE,
+  legalActions,
   pendingSlot,
   pickRow,
   redactGameForViewer,
