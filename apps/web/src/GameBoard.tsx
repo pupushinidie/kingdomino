@@ -463,6 +463,7 @@ function GameBoard({ room, busy, error, notice, brand, connection, themeToggle, 
           {themeToggle}
           <GameRules />
           <GameRoomMenu room={room} />
+          {spectating && <button className="quiet-button" type="button" onClick={onLeave}>离开观战</button>}
           {isHost && <button className="quiet-button danger" type="button" onClick={onDissolve}>解散</button>}
           {!layout.side && (
             <button className="quiet-button kd-drawer-toggle" type="button" aria-expanded={drawer} onClick={() => { setDrawer(!drawer); sideTabs.markRead(); }}>
