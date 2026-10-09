@@ -79,6 +79,38 @@ LAWN = [(71, 147, 61), (77, 143, 68), (64, 132, 56)]
 ROCK = [(52, 58, 64), (63, 70, 74), (40, 43, 54)]
 
 
+def ring_pixels(w: int, h: int, k: int) -> list[tuple[int, int]]:
+    return [(x, y) for x in range(k, w - k) for y in range(k, h - k) if x in (k, w - 1 - k) or y in (k, h - 1 - k)]
+
+
+def greyish_ring(image: Image.Image, k: int) -> bool:
+    """第 k 圈（从 0 数）大部分是灰色（饱和度低）：是模型画的边框。"""
+    w, h = image.size
+    px = image.load()
+    grey = 0
+    points = ring_pixels(w, h, k)
+    for x, y in points:
+        r, g, b = px[x, y][:3]
+        _, sat, val = colorsys.rgb_to_hsv(r / 255, g / 255, b / 255)
+        grey += sat < 0.12 and val > 0.5
+    return grey >= len(points) * 0.5
+
+
+def strip_ring(image: Image.Image) -> Image.Image:
+    """去掉模型画的外框（1px，有的 2px 灰框），换成往里的像素；格子之间的分隔由网页统一画。"""
+    depth = 2 if greyish_ring(image, 1) else 1
+    out = image.copy()
+    src = image.load()
+    px = out.load()
+    w, h = out.size
+    for x in range(w):
+        for y in range(h):
+            if depth <= x < w - depth and depth <= y < h - depth:
+                continue
+            px[x, y] = src[min(max(x, depth), w - 1 - depth), min(max(y, depth), h - 1 - depth)]
+    return out
+
+
 def is_red(r: int, g: int, b: int) -> bool:
     h, s, v = colorsys.rgb_to_hsv(r / 255, g / 255, b / 255)
     return (h < 0.045 or h > 0.94) and s > 0.45 and v > 0.25
@@ -155,9 +187,10 @@ def main() -> None:
             image = candidate(source, index)
             if terrain == "M" and image.getpixel((0, 0))[:3] == (171, 171, 171):
                 image = fill_background(image, ROCK)
+            image = strip_ring(image)
             image.save(PUBLIC / "terrain" / f"{terrain}-{variant}.png")
             half(image).save(PUBLIC / "terrain16" / f"{terrain}-{variant}.png")
-    castle = fill_background(candidate("castle", SELECTION["castle"]), LAWN)
+    castle = strip_ring(fill_background(candidate("castle", SELECTION["castle"]), LAWN))
     king = trim_center(candidate("king", SELECTION["king"]))
     for name, target in COLORS.items():
         tinted = recolor(castle, target)

@@ -166,10 +166,22 @@ function GameBoard({ room, busy, error, notice, brand, connection, themeToggle, 
     setChosen(null);
     setHover(null);
   }, [placingKey]);
+  const inRot = (p: Placement, r: number) => p.b.r - p.a.r === DIRS[r]!.r && p.b.c - p.a.c === DIRS[r]!.c;
+  // 当前方向一个能放的位置都没有时，自动转到有位置的方向
+  useEffect(() => {
+    if (legal.length === 0 || legal.some((p) => inRot(p, rot))) return;
+    const next = [1, 2, 3].map((i) => (rot + i) % 4).find((r) => legal.some((p) => inRot(p, r)));
+    if (next !== undefined) setRot(next);
+  }, [legal, rot]);
+  // 亮格：当前方向下骨牌 A 端能放的格子（亮）；任何方向能用到的格子（淡），点了会自动找方向
   const anchors = useMemo(() => {
     if (!canPlace || chosen) return new Set<string>();
-    return new Set(legal.filter((p) => p.b.r - p.a.r === DIRS[rot]!.r && p.b.c - p.a.c === DIRS[rot]!.c).map((p) => key(p.a.r, p.a.c)));
+    return new Set(legal.filter((p) => inRot(p, rot)).map((p) => key(p.a.r, p.a.c)));
   }, [canPlace, chosen, legal, rot]);
+  const reach = useMemo(() => {
+    if (!canPlace || chosen) return new Set<string>();
+    return new Set(legal.flatMap((p) => [key(p.a.r, p.a.c), key(p.b.r, p.b.c)]));
+  }, [canPlace, chosen, legal]);
 
   const tryAt = (p: Pos, start: number): { placement: Placement; rot: number } | null => {
     for (let i = 0; i < 4; i += 1) {
@@ -281,6 +293,8 @@ function GameBoard({ room, busy, error, notice, brand, connection, themeToggle, 
     detail = "";
   }
 
+  // 顶栏中间写完整提示：手机上（没有状态栏），或者王国上下摆、又没有侧栏时（宽屏才放得下）
+  const fullPrompt = layout.mobile || (!layout.mineBeside && !layout.side && mainBox.width >= 1280);
   const sideTabs = useSideTabs(room);
   const [drawer, setDrawer] = useState(false);
   const scene = theme === "day" ? art.sceneDay : art.sceneNight;
@@ -328,6 +342,7 @@ function GameBoard({ room, busy, error, notice, brand, connection, themeToggle, 
         window={playWindow(me.kingdom, size)}
         ghost={ghost}
         anchors={anchors}
+        reach={reach}
         fresh={fresh}
         {...(canPlace ? { onHover: setHover, onClick: clickCell } : {})}
         label={`${me.name} 的王国`}
@@ -368,7 +383,11 @@ function GameBoard({ room, busy, error, notice, brand, connection, themeToggle, 
   const opps = opponents.length > 0 && (
     <section className={layout.twoCols ? "kd-opps across" : "kd-opps"}>
       {opponents.map((player) => (
-        <div key={player.id} className={["kd-opp", actor?.id === player.id ? "active" : ""].join(" ")} style={{ "--seat": PLAYER_HEX[player.color] } as CSSProperties}>
+        <div
+          key={player.id}
+          className={["kd-opp", actor?.id === player.id ? "active" : ""].join(" ")}
+          style={{ "--seat": PLAYER_HEX[player.color], width: layout.mobile ? undefined : Math.max(size * layout.oc + 24, 184) } as CSSProperties}
+        >
           <PlayerHead player={player} you={player.id === selfId} member={memberOf(player.id)} game={game} />
           <KingdomGrid
             kingdom={player.kingdom}
@@ -379,7 +398,9 @@ function GameBoard({ room, busy, error, notice, brand, connection, themeToggle, 
             window={tightWindow(player.kingdom)}
             fresh={fresh}
             label={`${player.name} 的王国`}
-          />
+          >
+            {player.discarded.length > 0 && <small className="kd-discard-badge" title={`弃掉：${player.discarded.join("、")} 号`}>弃 {player.discarded.length}</small>}
+          </KingdomGrid>
         </div>
       ))}
     </section>
@@ -432,7 +453,7 @@ function GameBoard({ room, busy, error, notice, brand, connection, themeToggle, 
             <span className={myTurn ? "kd-turn-who mine" : "kd-turn-who"}>
               <i style={{ background: PLAYER_HEX[actor.color] }} />
               {/* 手机上没有单独的状态栏：顶栏第二行直接写现在该做什么 */}
-              {layout.mobile ? headline : myTurn ? "轮到你" : `轮到 ${actor.name}`}
+              {fullPrompt ? headline : myTurn ? "轮到你" : `轮到 ${actor.name}`}
             </span>
           )}
           {showTimer && <b className={secondsLeft! <= 10 ? "kd-timer low" : "kd-timer"}>{secondsLeft}s</b>}
@@ -512,7 +533,7 @@ function PlayerHead({ player, you, member, game, big = false }: { player: Player
       {member?.bot && <small className="kd-bot">人机</small>}
       {!member?.bot && (member?.auto || offline) && <small className="kd-auto">托管</small>}
       {offline && !member?.bot && <small className="kd-offline">离线</small>}
-      {player.discarded.length > 0 && <small className="kd-discard" title={`弃掉：${player.discarded.join("、")} 号`}>弃 {player.discarded.length}</small>}
+      {big && player.discarded.length > 0 && <small className="kd-discard" title={`弃掉：${player.discarded.join("、")} 号`}>弃 {player.discarded.length}</small>}
       <b className="kd-score">{player.score}</b>
     </div>
   );

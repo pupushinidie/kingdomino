@@ -109,6 +109,7 @@
 .kd-empty { position: absolute; box-sizing: border-box; box-shadow: inset 0 0 0 1px rgba(241, 236, 224, 0.05); }
 .kd-empty.live { cursor: pointer; }
 .kd-empty.can { background: rgba(240, 192, 80, 0.16); box-shadow: inset 0 0 0 var(--px) rgba(240, 192, 80, 0.55); }
+.kd-empty.near { background: rgba(240, 192, 80, 0.06); box-shadow: inset 0 0 0 var(--px) rgba(240, 192, 80, 0.22); }
 .kd-empty.live:hover { background: rgba(241, 236, 224, 0.1); }
 
 .kd-tile {
@@ -175,7 +176,9 @@
 .kd-opps { display: flex; flex: 0 0 auto; flex-direction: column; gap: 12px; }
 .kd-opp { --rim: var(--seat, #6a4f37); display: flex; min-width: 184px; box-sizing: border-box; flex-direction: column; gap: 8px; padding: 10px 12px; background: rgba(35, 26, 20, 0.88); }
 .kd-opp.active { --rim: var(--gold); }
-.kd-opp .kd-head { height: 24px; }
+.kd-opp .kd-head { height: 24px; overflow: hidden; }
+.kd-head > small { flex: 0 0 auto; }
+.kd-discard-badge { position: absolute; z-index: 1; top: 0; right: 0; padding: 0 4px; color: #f1ece0; background: rgba(7, 5, 4, 0.8); font-size: 12px; line-height: 16px; }
 .kd-opp .kd-head-king { width: 32px; height: 32px; }
 
 /* ---------- 右边：状态、分数、记录 / 聊天 ---------- */
@@ -361,7 +364,7 @@
 .kd-room .room-secure-note { display: none; }
 .kd-options { display: grid; gap: 8px; margin-top: 16px; }
 .app-shell .kd-options .room-setting { justify-content: flex-start; padding: 8px 10px; text-align: left; }
-.kd-options .room-setting > span { display: flex; flex-direction: column; gap: 2px; }
+.kd-options .room-setting > span { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 10px; row-gap: 2px; }
 .kd-options .room-setting b { font-size: 24px; font-weight: 400; line-height: 1.1; }
 .kd-options .room-setting small { color: var(--muted); font-size: 12px; }
 @media (min-width: 760px) {
@@ -370,6 +373,14 @@
   .kd-room .room-layout { flex: 1 1 auto; }
   .kd-room .room-grid { flex: 1 1 auto; min-height: 0; }
   .kd-room .room-code-panel, .kd-room .player-panel { max-height: 100%; overflow-y: auto; }
+}
+@media (min-width: 760px) and (max-height: 760px) {
+  .kd-room .room-heading .eyebrow { display: none; }
+  .app-shell.kd-room .room-heading h1 { margin-top: 0; font-size: 24px; }
+  .app-shell.kd-room .room-chat-list { min-height: 40px; }
+  .kd-options { margin-top: 10px; gap: 6px; }
+  /* 「房间已创建」这类成功提示在矮屏幕上不占地方（出错的提示照常显示） */
+  .kd-room .room-feedback.feedback-success { display: none; }
 }
 @media (min-width: 760px) and (max-height: 820px) {
   .kd-room .room-layout { padding-top: 16px; }
@@ -380,10 +391,11 @@
   .app-shell.kd-room .room-actions .primary-button { margin-top: 6px; }
 }
 @media (min-width: 760px) and (max-width: 1180px) {
+  /* 左边房间码 + 开房变体、下面聊天；右边玩家（开始按钮在这一栏） */
   .kd-room .room-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); align-items: stretch; }
-  .kd-room .room-code-panel { grid-column: 1; grid-row: 1 / 3; min-height: 0; overflow-y: auto; }
-  .kd-room .player-panel { grid-column: 2; grid-row: 1; }
-  .kd-room .kd-room-chat { grid-column: 2; grid-row: 2; }
+  .kd-room .room-code-panel { grid-column: 1; grid-row: 1; min-height: 0; overflow-y: auto; }
+  .kd-room .player-panel { grid-column: 2; grid-row: 1 / 3; }
+  .kd-room .kd-room-chat { grid-column: 1; grid-row: 2; }
 }
 @media (max-width: 759px) {
   .app-shell.kd-room { width: calc(100% - 32px); }

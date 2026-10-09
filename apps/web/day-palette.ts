@@ -42,5 +42,5 @@ export const palette: DayPalette = {
     "--bad": "#d1303f",
   },
   // 骨牌上的「已放 / 弃掉」小牌保持深底浅字
-  keep: [".kd-slot-state"],
+  keep: [".kd-slot-state", ".kd-discard-badge"],
 };

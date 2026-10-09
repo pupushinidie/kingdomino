@@ -81,8 +81,9 @@ interface Fit {
   twoCols: boolean;
 }
 
-/** 先比自己的王国，再比两排骨牌（挑牌要看清），最后比对手的王国。 */
-const better = (a: Fit, b: Fit | null) => !b || a.c > b.c || (a.c === b.c && (a.rc > b.rc || (a.rc === b.rc && a.oc > b.oc)));
+/** 先比自己的王国，再比两排骨牌（挑牌要看清），再比对手的王国；都一样时名牌放右边的好（能显示操作说明）。 */
+const better = (a: Fit, b: Fit | null) =>
+  !b || a.c > b.c || (a.c === b.c && (a.rc > b.rc || (a.rc === b.rc && (a.oc > b.oc || (a.oc === b.oc && a.mineBeside && !b.mineBeside)))));
 
 /** 在 w × h 的牌桌里，用 art 这套原图，找最好的摆法。 */
 function fitTable(w: number, h: number, size: number, opponents: number, art: 32 | 16): Fit | null {

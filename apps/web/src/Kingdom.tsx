@@ -88,7 +88,7 @@ export interface Ghost {
  * 可以交互时，空格子响应悬停和点击；ghost 是正在摆的骨牌（半透明叠在上面）。
  */
 export function KingdomGrid({
-  kingdom, color, cell, px, box, window, ghost, anchors, fresh, onHover, onClick, label, children,
+  kingdom, color, cell, px, box, window, ghost, anchors, reach, fresh, onHover, onClick, label, children,
 }: {
   kingdom: Kingdom;
   color: PlayerColor;
@@ -98,8 +98,10 @@ export function KingdomGrid({
   box: number;
   window: Window;
   ghost?: Ghost | null;
-  /** 能当 A 端的格子（高亮）。 */
+  /** 当前方向下能当 A 端的格子（亮）。 */
   anchors?: ReadonlySet<string>;
+  /** 任何方向的放法用得到的格子（淡）。 */
+  reach?: ReadonlySet<string>;
   /** 刚放下的骨牌编号（入场动画）。 */
   fresh?: ReadonlySet<number>;
   onHover?: (pos: Pos | null) => void;
@@ -136,10 +138,11 @@ export function KingdomGrid({
         );
       } else {
         const can = anchors?.has(k) ?? false;
+        const near = !can && (reach?.has(k) ?? false);
         cells.push(
           <span
             key={k}
-            className={["kd-empty", can ? "can" : "", interactive ? "live" : ""].join(" ")}
+            className={["kd-empty", can ? "can" : "", near ? "near" : "", interactive ? "live" : ""].join(" ")}
             style={{ ...style, width: cell, height: cell }}
             onPointerEnter={onHover ? () => onHover({ r, c }) : undefined}
             onClick={onClick ? () => onClick({ r, c }) : undefined}

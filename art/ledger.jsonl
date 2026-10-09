@@ -13,3 +13,6 @@
 {"time": "2026-10-09 14:02:34", "name": "scene-day-s21", "endpoint": "/create-image-pixen", "usage": {"type": "usd", "usd": 0.010085380686653985}, "seconds": 76.4}
 {"time": "2026-10-09 14:03:42", "name": "scene-day-s22", "endpoint": "/create-image-pixen", "usage": {"type": "usd", "usd": 0.00979269274075826}, "seconds": 67.7}
 {"time": "2026-10-09 14:05:04", "name": "scene-day-s23", "endpoint": "/create-image-pixen", "usage": {"type": "usd", "usd": 0.009810154888365005}, "seconds": 82.9}
+{"time": "2026-10-09 14:06:28", "name": "scene-day-s24", "endpoint": "/create-image-pixen", "usage": {"type": "usd", "usd": 0.010348577207989164}, "seconds": 83.0}
+{"time": "2026-10-09 14:32:38", "name": "t-mine2", "endpoint": "/generate-image-v2", "usage": {"type": "usd", "usd": 0.08}, "seconds": 136.4, "status": "completed"}
+{"time": "2026-10-09 14:34:47", "name": "t-grass2", "endpoint": "/generate-image-v2", "usage": {"type": "usd", "usd": 0.08}, "seconds": 128.4, "status": "completed"}
