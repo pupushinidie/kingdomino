@@ -53,6 +53,16 @@ BASE_PATH=/kingdomino/ npm run build
 
 人机强度（`~/projects/qa-reports/tools/bots/sim-kingdomino.ts`，2026-10-09）：2 人局平均约 42 分；对超时自动打法胜率 98%（2 人）/ 94%（4 人，公平 25%），对随机 99%。
 
+## 新手教程
+
+站内统一做法（`~/projects/pipeline/handbook/tutorial-notes.md`，欲罢不能是参考实现）：不连服务器，浏览器里直接跑规则引擎。
+
+- 剧本 `packages/game/src/tutorial.ts`（24 步、14 课）：两人局对咕噜一号。开局摆好第一排（3、13、24、36 号），你挑 24 → 咕噜一号挑 2 张 → 3 号归你；第 1 轮放第一张（挨城堡）、挑 29 号、让带皇冠的森林接上森林（3×1=3 分）、再挑 21 号；然后 `FAST_FORWARD` 换成最后一轮的残局（前面放的骨牌原位不动）：点格子后旋转一次让湖泊接上湖泊、咕噜一号的 16 号放不下被自动弃掉、22 号把两片麦田连成 6 格 × 2 皇冠、咕噜一号最后放矿山追平 32:32，比最大一片区域 6:5 你赢。剧本单测 `tutorial.test.ts`。
+- 网页：共用教练层 `apps/web/src/tutorial/`（从 cantstop/lucky 复制，不改逻辑）、`TutorialMode.tsx`（剧本接 GameBoard；放骨牌、挑骨牌「先点再确认」，按 GameBoard 的 `onSelection` 把高亮挪到「旋转 / 确认放下 / 重选 / 就挑 N 号」）、`tutorialGame.ts`（「提示」的说法和「第一次」小贴士）。
+- 入口：首页邀请卡、等候房间邀请卡（看教程不离开房间，房主开局自动回牌桌）、地址带 `?tutorial` 直接打开。学完一键开一局人机练习，练习局和「只有自己 + 人机」的房间里有「提示」（键盘 H）。
+- 锚点（`data-tutorial`）：`kingdom:<玩家>`、`cell:<玩家>:<行>,<列>`、`head:<玩家>`、`row:current|next`、`slot:current|next:<位置>`、`rotate`、`confirm`、`reselect`、`pick-confirm`、`hint`、`final:<玩家>`。
+- 走查：`node ~/projects/qa-reports/tools/tut-kingdomino.mjs <输出目录> flow|skip|waiting|room [1440|1920|1024|390] [night|day]`（先 `npm run dev`；`SHORT=1` 只走到练习局开头）。
+
 ## 美术流水线（`art/`）
 
 PixelLab API，密钥只在 `~/.config/pixellab/api_key`，不进仓库。每次调用记进 `art/ledger.jsonl`，`BUDGET_USD` 设上限。生成的原图和中间文件在被 gitignore 的 `art/out/`。

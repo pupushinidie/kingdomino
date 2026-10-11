@@ -416,3 +416,9 @@
 @media (prefers-reduced-motion: reduce) {
   .kd-tile.fresh, .kd-king, .kd-ghost.chosen, .kd-timer.low { animation: none; }
 }
+
+/* ---------- 新手教程 ---------- */
+.kd-hint.on { color: var(--gold); }
+.tut-checklist h3 small { margin-left: 6px; }
+.kd-room-tutorial { align-self: center; min-width: 0; }
+.kd-room-tutorial .tut-invite { margin: 0; padding: 8px 12px; }

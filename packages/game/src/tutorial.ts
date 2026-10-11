@@ -118,7 +118,7 @@ export const TUTORIAL_STEPS: readonly TutorialStep[] = [
     note: "至少一格要挨着城堡或同一种地形，另一格挨着什么都行。点亮着的格子，再确认。",
   },
   {
-    kind: "info", id: "score-first", lesson: "区域计分", anchor: `head:${TUTORIAL_SELF}`, face: "happy",
+    kind: "info", id: "score-first", lesson: "区域计分", anchor: `kingdom:${TUTORIAL_SELF}`, face: "happy",
     say: "森林连成一片：3 格 × 1 个皇冠 = 3 分。",
     note: "同一种地形连在一起算一片，得分是格数乘皇冠数。没有皇冠的一片不得分。",
   },
@@ -138,7 +138,7 @@ export const TUTORIAL_STEPS: readonly TutorialStep[] = [
     moves: [{ type: "FAST_FORWARD" }],
   },
   {
-    kind: "info", id: "last-round", lesson: "最后一轮", anchor: "row:next", face: "think",
+    kind: "info", id: "last-round", lesson: "最后一轮", anchor: "row:current", face: "think",
     say: "牌堆用完了，这是最后一轮：只放不挑。",
     note: "现在你 20 分，咕噜一号 24 分。这一轮放完，游戏就结束。",
   },
@@ -164,7 +164,7 @@ export const TUTORIAL_STEPS: readonly TutorialStep[] = [
     note: "看看你的两片麦田会怎样。",
   },
   {
-    kind: "info", id: "merge-score", anchor: `head:${TUTORIAL_SELF}`, face: "happy",
+    kind: "info", id: "merge-score", anchor: `kingdom:${TUTORIAL_SELF}`, face: "happy",
     say: "两片麦田连起来：6 格 × 2 个皇冠 = 12 分！",
     note: "连在一起的同种地形算一片，越大越值钱。你现在 32 分。",
   },

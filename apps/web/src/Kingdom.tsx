@@ -14,7 +14,7 @@ function halfEnd(n: number, t: string, crowns: number, parity: number): number {
 }
 
 /** 一格地形（或城堡）：底图 + 左上角的皇冠。 */
-export function Tile({ terrain, crowns, n, end, cell, px, color, className = "", style }: {
+export function Tile({ terrain, crowns, n, end, cell, px, color, className = "", style, tut }: {
   terrain: Terrain | "castle";
   crowns: number;
   /** 来自哪张骨牌（挑变体用）。 */
@@ -25,11 +25,13 @@ export function Tile({ terrain, crowns, n, end, cell, px, color, className = "",
   color?: PlayerColor;
   className?: string;
   style?: CSSProperties;
+  /** 新手教程的高亮锚点（data-tutorial）。 */
+  tut?: string;
 }) {
   const src = terrain === "castle" ? art.castle(color ?? "pink", px) : terrainArt(terrain, n, end, px);
   const cs = crownScale(cell);
   return (
-    <span className={`kd-tile ${terrain === "castle" ? "castle" : `t-${terrain}`} ${className}`} style={{ width: cell, height: cell, backgroundImage: `url(${src})`, ...style }}>
+    <span className={`kd-tile ${terrain === "castle" ? "castle" : `t-${terrain}`} ${className}`} style={{ width: cell, height: cell, backgroundImage: `url(${src})`, ...style }} data-tutorial={tut}>
       {crowns > 0 && (
         <span className="kd-crowns" style={{ gap: cs, left: cs * 2, top: cs * 2 }}>
           {Array.from({ length: crowns }, (_, index) => (
@@ -88,7 +90,7 @@ export interface Ghost {
  * 可以交互时，空格子响应悬停和点击；ghost 是正在摆的骨牌（半透明叠在上面）。
  */
 export function KingdomGrid({
-  kingdom, color, cell, px, box, window, ghost, anchors, reach, fresh, onHover, onClick, label, children,
+  kingdom, color, cell, px, box, window, ghost, anchors, reach, fresh, onHover, onClick, label, tutorialId, children,
 }: {
   kingdom: Kingdom;
   color: PlayerColor;
@@ -107,6 +109,8 @@ export function KingdomGrid({
   onHover?: (pos: Pos | null) => void;
   onClick?: (pos: Pos) => void;
   label: string;
+  /** 新手教程锚点用的玩家 id：整块是 kingdom:<id>，每格是 cell:<id>:<行>,<列>。 */
+  tutorialId?: string;
   children?: ReactNode;
 }) {
   const rows = window.r1 - window.r0 + 1;
@@ -121,6 +125,7 @@ export function KingdomGrid({
       const k = key(r, c);
       const found = kingdom[k];
       const style = { position: "absolute", ...at({ r, c }) } as CSSProperties;
+      const tut = tutorialId ? `cell:${tutorialId}:${k}` : undefined;
       if (found) {
         cells.push(
           <Tile
@@ -134,6 +139,7 @@ export function KingdomGrid({
             color={color}
             className={fresh?.has(found.d) ? "fresh" : ""}
             style={style}
+            {...(tut ? { tut } : {})}
           />,
         );
       } else {
@@ -146,6 +152,7 @@ export function KingdomGrid({
             style={{ ...style, width: cell, height: cell }}
             onPointerEnter={onHover ? () => onHover({ r, c }) : undefined}
             onClick={onClick ? () => onClick({ r, c }) : undefined}
+            data-tutorial={tut}
           />,
         );
       }
@@ -184,6 +191,7 @@ export function KingdomGrid({
       style={{ width: box * cell, height: box * cell }}
       onPointerLeave={onHover ? () => onHover(null) : undefined}
       aria-label={label}
+      data-tutorial={tutorialId ? `kingdom:${tutorialId}` : undefined}
     >
       <div className="kd-grid-ground" style={{ left, top, width: cols * cell, height: rows * cell }} />
       {cells}
