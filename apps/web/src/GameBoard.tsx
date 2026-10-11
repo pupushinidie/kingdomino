@@ -24,6 +24,8 @@ import GameRules from "./GameRules.js";
 import { DominoView, KingdomGrid, playWindow, tightWindow, type Ghost } from "./Kingdom.js";
 import { useLayout, type Layout } from "./layout.js";
 import { GameRoomMenu, SpectateBar } from "./RoomExtras.js";
+import { useGameSfx } from "./game-sfx.js";
+import { sfx, useSfxCountdown } from "./gm-sound.js";
 import { socket } from "./socket.js";
 import type { Theme } from "./theme.js";
 import { Coach, TipToast } from "./tutorial/Coach.js";
@@ -123,6 +125,8 @@ function GameBoard({ room, busy, error, notice, brand, connection, themeToggle, 
   const actor = finished ? undefined : game.players[game.currentPlayer];
   const myTurn = !spectating && !finished && game.currentPlayer === meIndex;
   const secondsLeft = useCountdown(room);
+  useGameSfx(game, selfId);
+  useSfxCountdown(myTurn && member?.auto !== true, secondsLeft);
   const opponents = game.players.filter((player) => player.id !== myId);
   const [mainRef, layout, mainBox] = useLayout(size, opponents.length);
   const px = layout.art;
@@ -218,9 +222,10 @@ function GameBoard({ room, busy, error, notice, brand, connection, themeToggle, 
     if (!canPlace || busy) return;
     const found = tryAt(p, rot);
     if (found) {
+      sfx.select(true);
       setRot(found.rot);
       setChosen(found.placement);
-    }
+    } else sfx.deny();
   };
   const rotate = () => {
     if (!canPlace) return;
@@ -261,7 +266,10 @@ function GameBoard({ room, busy, error, notice, brand, connection, themeToggle, 
   const clickSlot = (index: number) => {
     if (!pickable.includes(index) || busy) return;
     if (pickSel === index) onCommand({ type: "PICK", slot: index });
-    else setPickSel(index);
+    else {
+      sfx.select(true);
+      setPickSel(index);
+    }
   };
 
   // 「先点再确认」的当前选择报给新手教程（高亮跟着挪到「旋转」「确认放下」）
@@ -643,7 +651,7 @@ function RowColumn({ title, meta, slots, game, kind, layout, pickable, pickSel, 
                 pickSel === index ? "selected" : "",
                 pickable.length > 0 && !canPick ? "taken" : "",
               ].join(" ")}
-              onClick={canPick ? () => onSlot(index) : undefined}
+              onClick={canPick ? () => onSlot(index) : pickable.length > 0 ? () => sfx.deny() : undefined}
               style={owner ? ({ "--seat": PLAYER_HEX[owner.color] } as CSSProperties) : undefined}
               data-tutorial={`slot:${kind}:${index}`}
             >

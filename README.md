@@ -79,6 +79,12 @@ PixelLab API，密钥只在 `~/.config/pixellab/api_key`，不进仓库。每次
 - 夜间配色就是 `app-pixel.css`（首页和等候房间）和 `kd.css`（牌桌）。白天版由 `apps/web/day-theme.ts`（Vite 插件）在构建时按 `apps/web/day-palette.ts` 的调色表换色生成；机械换色不合适的地方在 `src/theme-day.css` 里手写。
 - 牌桌背景是王国场景，白天、夜间各一张。
 
+## 声音
+
+还没有背景音乐（`App.tsx` 里用 `NO_BGM`：房间和教程里照样有 ♪ 面板，能调音效和语音）。共用声音库是 `apps/web/src/gm-sound.tsx`（各仓库同一份，不要改）。
+
+动作音效在 `apps/web/src/game-sfx.ts`（`useGameSfx`，对比前后两次对局快照的 version、这一步的 events 和当前排骨牌的预放状态）：挑骨牌 = 招牌「国王落座」（木头棋子落下 + 一声小铃），放骨牌 = 招牌「骨牌落地」（两半先后「嗒嗒」+ 闷响）、区域分涨了再响得分，提前放好 = 轻一点的「嗒」、取消预放 = 擦过的一声，丢弃 = 招牌「扔掉」（往下滑），3 人局剩牌弃掉 = 很轻的一声；新一轮 = 提示音 + 新一排骨牌翻开的「嗒嗒」；轮到你、交出回合、最后 5 秒倒计时、超时、终局赢/输都有提示音。别人的动作音量减半，进房间 / 重连时不补响。点骨牌、点格子选位置是「选中」声，点被挑走的骨牌、放不下的格子是「不行」声。开发模式下每响一个都记进 `window.__sfxLog`，自测脚本 `~/projects/qa-reports/tools/kingdomino-sfx.mjs`（打一整局）和 `sfx-tiles-tut.mjs`（走一遍教程）读它。
+
 ## 部署
 
 服务器上 `~/kingdomino`，pm2 进程 `kingdomino`（端口 3014），网页在 `/var/www/kingdomino`，Caddy `handle_path /kingdomino/*`（在付费网关 `@games` 里）。本机运行 `~/projects/deploy.sh kingdomino`（服务器拉 GitHub 上的 main）。
