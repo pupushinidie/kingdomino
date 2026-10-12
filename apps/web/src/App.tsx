@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type CSSProperties, type FormEvent, type ReactNode, useRef } from "react";
 import { CAPACITY_OPTIONS, type Capacity, type GameCommand, type GameOptions, type LobbyRoomSnapshot, type PublicRoomSummary } from "@kingdomino/game";
-import { art, bgArt, PLAYER_HEX } from "./art.js";
+import { art, PLAYER_HEX } from "./art.js";
 import { DominoView } from "./Kingdom.js";
 import { useConfirm } from "./confirm.js";
 import GameBoard from "./GameBoard.js";
@@ -254,7 +254,6 @@ function App() {
   if (tutorialOpen && room?.status !== "playing") {
     return (
       <main data-gc-table className="app-shell kd-game">
-        <KingdomBackdrop theme={theme} />
         <TutorialMode name={name} brand={<Brand />} themeToggle={themeToggle} theme={theme} waitingRoom={room?.code} onExit={closeTutorial} />
         {confirmDialog}
       </main>
@@ -266,7 +265,6 @@ function App() {
     const watched = players.some((player) => player.id === watchId) ? watchId : players[0]!.id;
     return (
       <main data-gc-table className="app-shell kd-game">
-        <KingdomBackdrop theme={theme} />
         <GameBoard
           room={room}
           busy={busy}
@@ -293,7 +291,6 @@ function App() {
   if (room) {
     return (
       <main className="app-shell kd-room">
-        <KingdomBackdrop theme={theme} />
         <header className="topbar">
           <Brand />
           <div className="topbar-right">
@@ -323,7 +320,6 @@ function App() {
 
   return (
     <main className="app-shell kd-home">
-      <KingdomBackdrop theme={theme} />
       <header className="topbar">
         <Brand />
         <div className="topbar-right">
@@ -354,7 +350,7 @@ function App() {
             again="再看一遍新手教程"
             onOpen={() => setTutorialOpen(true)}
           />
-          <Showcase />
+          <Hero />
         </div>
 
         <div className="kd-home-side">
@@ -455,23 +451,16 @@ function App() {
   );
 }
 
-/** 铺满窗口的王国场景：fixed 在最底层，上面叠一层暗色 veil，面板都叠在它上面。 */
-export function KingdomBackdrop({ theme }: { theme: "day" | "night" }) {
+/** 首页主图：王国场景 + 摆在上面的几张骨牌。 */
+function Hero() {
+  const [theme] = useTheme();
   return (
-    <div className="kd-backdrop" aria-hidden="true">
-      <div className="kd-backdrop-art" style={{ backgroundImage: `url(${theme === "day" ? bgArt.day : bgArt.night})` }} />
-      <div className="kd-backdrop-veil" />
-    </div>
-  );
-}
-
-/** 首页介绍栏底下摆的几张骨牌（场景本身已经铺满整个窗口）。 */
-function Showcase() {
-  return (
-    <div className="kd-showcase" aria-hidden="true">
-      {[48, 46, 33, 21].map((n, index) => (
-        <span key={n} style={{ "--i": index } as CSSProperties}><DominoView n={n} cell={32} px={32} /></span>
-      ))}
+    <div className="kd-hero" style={{ backgroundImage: `url(${theme === "day" ? art.sceneDay : art.sceneNight})` }}>
+      <div className="kd-showcase" aria-hidden="true">
+        {[48, 46, 33, 21].map((n, index) => (
+          <span key={n} style={{ "--i": index } as CSSProperties}><DominoView n={n} cell={32} px={32} /></span>
+        ))}
+      </div>
     </div>
   );
 }
