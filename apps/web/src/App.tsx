@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type CSSProperties, type FormEvent, type ReactNode, useRef } from "react";
 import { CAPACITY_OPTIONS, type Capacity, type GameCommand, type GameOptions, type LobbyRoomSnapshot, type PublicRoomSummary } from "@kingdomino/game";
-import { art, PLAYER_HEX } from "./art.js";
+import { art, bgArt, PLAYER_HEX } from "./art.js";
 import { DominoView } from "./Kingdom.js";
 import { useConfirm } from "./confirm.js";
 import GameBoard from "./GameBoard.js";
@@ -10,7 +10,7 @@ import RoomChat from "./RoomChat.js";
 import { roomRole, RoomSettingsPanel, SeatSwitch } from "./RoomExtras.js";
 import { socket } from "./socket.js";
 import { ThemeToggle, useTheme } from "./theme.js";
-import { useRoomSfx, sfx, NO_BGM, SoundToggle, useBgm } from "./gm-sound.js";
+import { useRoomSfx, sfx, type BgmTrack, SoundToggle, useBgm } from "./gm-sound.js";
 import { TutorialInvite } from "./tutorial/Invite.js";
 import { readTutorial } from "./tutorial/storage.js";
 import { GAME_ID } from "./tutorialGame.js";
@@ -27,6 +27,9 @@ const CENTER_URL = import.meta.env.DEV ? `${window.location.protocol}//${window.
 function normalizeRoomCode(value: string): string {
   return value.toUpperCase().replace(/[^A-HJ-NP-Z2-9]/g, "").slice(0, 6);
 }
+
+// 背景音乐：进了房间（等候房间、对局、观战）和新手教程里放，首页和房间列表不放。gain / start / end 按这首曲子量（见 gm-sound.tsx）。
+const BGM: BgmTrack = { src: `${import.meta.env.BASE_URL}bgm/kingdomino.mp3`, gain: 0.79, start: 0.05, end: 154.5 };
 
 function App() {
   const [mode, setMode] = useState<EntryMode>("create");
@@ -49,7 +52,7 @@ function App() {
   // 新手教程：首页或等候房间点进来（地址带 ?tutorial 时直接打开，游戏中心可以直接链过来）
   const [tutorialOpen, setTutorialOpen] = useState(() => new URLSearchParams(window.location.search).has("tutorial"));
   // 声音：进了房间（等候房间、对局、观战）和新手教程里顶栏有 ♪ 面板（音效、语音音量）；这款还没有背景音乐。
-  useBgm(room || tutorialOpen ? NO_BGM : null);
+  useBgm(room || tutorialOpen ? BGM : null);
   // 房间里的提示音：有人进出、开局、收到别人的聊天（聊天只留最近几条，按最后一条的 id 数新消息）
   const lastChat = room ? room.chat[room.chat.length - 1] : undefined;
   const chatSeen = useRef<{ id: string | undefined; count: number }>({ id: undefined, count: 0 });
@@ -251,6 +254,7 @@ function App() {
   if (tutorialOpen && room?.status !== "playing") {
     return (
       <main data-gc-table className="app-shell kd-game">
+        <KingdomBackdrop theme={theme} />
         <TutorialMode name={name} brand={<Brand />} themeToggle={themeToggle} theme={theme} waitingRoom={room?.code} onExit={closeTutorial} />
         {confirmDialog}
       </main>
@@ -262,6 +266,7 @@ function App() {
     const watched = players.some((player) => player.id === watchId) ? watchId : players[0]!.id;
     return (
       <main data-gc-table className="app-shell kd-game">
+        <KingdomBackdrop theme={theme} />
         <GameBoard
           room={room}
           busy={busy}
@@ -288,6 +293,7 @@ function App() {
   if (room) {
     return (
       <main className="app-shell kd-room">
+        <KingdomBackdrop theme={theme} />
         <header className="topbar">
           <Brand />
           <div className="topbar-right">
@@ -317,6 +323,7 @@ function App() {
 
   return (
     <main className="app-shell kd-home">
+      <KingdomBackdrop theme={theme} />
       <header className="topbar">
         <Brand />
         <div className="topbar-right">
@@ -347,7 +354,7 @@ function App() {
             again="再看一遍新手教程"
             onOpen={() => setTutorialOpen(true)}
           />
-          <Hero />
+          <Showcase />
         </div>
 
         <div className="kd-home-side">
@@ -448,16 +455,23 @@ function App() {
   );
 }
 
-/** 首页主图：王国场景 + 摆在上面的几张骨牌。 */
-function Hero() {
-  const [theme] = useTheme();
+/** 铺满窗口的王国场景：fixed 在最底层，上面叠一层暗色 veil，面板都叠在它上面。 */
+export function KingdomBackdrop({ theme }: { theme: "day" | "night" }) {
   return (
-    <div className="kd-hero" style={{ backgroundImage: `url(${theme === "day" ? art.sceneDay : art.sceneNight})` }}>
-      <div className="kd-showcase" aria-hidden="true">
-        {[48, 46, 33, 21].map((n, index) => (
-          <span key={n} style={{ "--i": index } as CSSProperties}><DominoView n={n} cell={32} px={32} /></span>
-        ))}
-      </div>
+    <div className="kd-backdrop" aria-hidden="true">
+      <div className="kd-backdrop-art" style={{ backgroundImage: `url(${theme === "day" ? bgArt.day : bgArt.night})` }} />
+      <div className="kd-backdrop-veil" />
+    </div>
+  );
+}
+
+/** 首页介绍栏底下摆的几张骨牌（场景本身已经铺满整个窗口）。 */
+function Showcase() {
+  return (
+    <div className="kd-showcase" aria-hidden="true">
+      {[48, 46, 33, 21].map((n, index) => (
+        <span key={n} style={{ "--i": index } as CSSProperties}><DominoView n={n} cell={32} px={32} /></span>
+      ))}
     </div>
   );
 }
