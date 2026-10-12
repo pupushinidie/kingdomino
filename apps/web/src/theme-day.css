@@ -5,3 +5,7 @@
 :root[data-theme="day"] { color-scheme: light; }
 :root[data-theme="day"] .app-shell * { scrollbar-color: #c4b090 var(--bg); }
 
+
+/* 白天版：场景换成白天那张，veil 换成淡白 */
+:root[data-theme="day"] .kd-backdrop { background: #f4f2ec; }
+:root[data-theme="day"] .kd-backdrop-veil { background: #ffffff; opacity: 0.25; }

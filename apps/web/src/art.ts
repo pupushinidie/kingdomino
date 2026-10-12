@@ -31,6 +31,12 @@ export const art = {
   sceneDay: `${ROOT}ui/scene-day.png`,
 };
 
+/** 铺满整个窗口的场景背景（首页、等候房间、牌桌、教程、观战都用；512×288，和牌桌场景同一张）。 */
+export const bgArt = {
+  night: `${ROOT}bg/night.png`,
+  day: `${ROOT}bg/day.png`,
+};
+
 /** 玩家颜色（城堡、国王、名字前的小方块）。 */
 export const PLAYER_HEX: Record<PlayerColor, string> = {
   pink: "#e46aa4",

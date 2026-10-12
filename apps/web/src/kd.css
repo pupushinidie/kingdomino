@@ -6,10 +6,25 @@
  * 格子大小由 layout.ts 按牌桌实际尺寸挑，像素图只按整数倍放大。
  */
 
+/* ---------- 背景：王国场景铺满整个窗口（首页、等候房间、牌桌、教程、观战） ---------- */
+.kd-backdrop { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; background: #120e0b; }
+.kd-backdrop-art {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: max(100vw, calc(100vh * 16 / 9));
+  height: max(100vh, calc(100vw * 9 / 16));
+  transform: translate(-50%, -50%);
+  background-size: 100% 100%;
+  image-rendering: pixelated;
+}
+.kd-backdrop-veil { position: absolute; inset: 0; background: #0c0907; opacity: 0.4; }
+.app-shell.kd-home > :not(.kd-backdrop):not(.gm-modal-backdrop), .app-shell.kd-room > :not(.kd-backdrop):not(.gm-modal-backdrop), .app-shell.kd-game > :not(.kd-backdrop):not(.gm-modal-backdrop) { position: relative; z-index: 1; }
+
 .kd-screen small, .app-shell .gm-panel.kd-final small, .app-shell .gm-panel.kd-rules small { font-size: 12px; font-weight: 400; }
 .kd-screen img { image-rendering: pixelated; }
 
-.kd-panel, .kd-mine, .kd-opp, .kd-row, .kd-final, .kd-hero {
+.kd-panel, .kd-mine, .kd-opp, .kd-row, .kd-final, .kd-home .welcome-copy, .kd-home .online-rooms, .kd-room .room-heading, .kd-room .room-feedback {
   box-shadow:
     0 calc(var(--px) * -1) 0 0 var(--edge),
     0 var(--px) 0 0 var(--edge),
@@ -276,39 +291,33 @@
 .kd-screen.mobile .kd-side { min-height: 360px; }
 .kd-screen.mobile .kd-status { display: none; }
 
-/* ---------- 首页：一屏放下 ---------- */
-.app-shell .kd-hero {
-  --rim: #6a4f37;
-  position: relative;
-  width: 512px;
-  height: 288px;
-  margin-top: 16px;
-  background: #2e2319 center / 512px 288px no-repeat;
-  image-rendering: pixelated;
-}
-.app-shell .kd-showcase { position: absolute; left: 50%; bottom: 18px; display: flex; gap: 10px; transform: translateX(-50%); }
-.app-shell .kd-showcase > span { display: block; transform: translateY(calc((var(--i) - 1.5) * (var(--i) - 1.5) * 4px)); filter: drop-shadow(2px 2px 0 rgba(7, 5, 4, 0.8)); }
+/* ---------- 首页：一屏放下，面板叠在铺满窗口的场景上 ---------- */
+.app-shell .kd-showcase { display: flex; gap: 10px; margin-top: 16px; }
+.app-shell .kd-showcase > span { display: block; transform: translateY(calc((var(--i) - 1.5) * (var(--i) - 1.5) * 2px)); filter: drop-shadow(2px 2px 0 rgba(7, 5, 4, 0.8)); }
 .kd-home-points { display: grid; gap: 6px; margin: 16px 0 0; padding: 0; list-style: none; color: var(--muted); font-size: 12px; }
 .kd-home-points b { display: inline-block; min-width: 40px; margin-right: 8px; color: var(--gold); font-size: 24px; font-weight: 400; vertical-align: middle; }
 
 .app-shell.kd-home { width: min(1200px, calc(100% - 48px)); }
-.kd-home .welcome-grid { grid-template-columns: minmax(512px, 1fr) 420px; grid-template-rows: minmax(0, 1fr); align-items: center; gap: 48px; padding: 24px 0; }
-.kd-home .welcome-copy { padding: 0; }
+.app-shell.kd-home .topbar { border-bottom-color: rgba(106, 79, 55, 0.6); }
+.kd-home .welcome-grid { grid-template-columns: minmax(420px, 1fr) 420px; grid-template-rows: minmax(0, 1fr); align-items: center; gap: 32px; padding: 24px 0; }
+.app-shell.kd-home .welcome-copy { --rim: #6a4f37; box-sizing: border-box; max-height: 100%; padding: 20px 24px; overflow: hidden; background: var(--panel); }
+.app-shell.kd-home .welcome-copy h1 { margin: 12px 0; }
+.app-shell.kd-home .welcome-copy .tut-invite { margin-top: 16px; }
 .kd-home-side { display: flex; max-height: 100%; min-width: 0; min-height: 0; flex-direction: column; gap: 16px; }
 .kd-home-side .entry-card { flex: 0 0 auto; }
-.app-shell.kd-home .online-rooms { display: flex; min-height: 0; flex: 0 1 auto; flex-direction: column; margin: 0; padding: 0; border-top: 0; }
+.app-shell.kd-home .online-rooms { --rim: #6a4f37; display: flex; min-height: 0; flex: 0 1 auto; flex-direction: column; margin: 0; padding: 14px 16px; border-top: 0; background: var(--panel); }
 .app-shell.kd-home .online-rooms > * { flex: 0 0 auto; }
 .app-shell.kd-home .online-rooms-heading { margin-bottom: 8px; }
 .app-shell.kd-home .online-rooms-heading h2 { margin-top: 2px; }
 .app-shell.kd-home .online-rooms .online-rooms-grid { flex: 0 1 auto; min-height: 56px; grid-template-columns: 1fr; overflow-y: auto; }
 .app-shell.kd-home .entry-card .primary-button { min-height: 56px; font-size: 24px; }
 @media (min-width: 900px) {
-  .app-shell.kd-home { height: 100vh; height: 100dvh; min-height: 0; }
+  .app-shell.kd-home { height: 100vh; height: 100dvh; min-height: 0; overflow: hidden; }
   .kd-home .topbar { flex: 0 0 auto; height: 64px; }
   .kd-home .welcome-grid { flex: 1 1 auto; min-height: 0; }
 }
 @media (min-width: 900px) and (max-height: 820px) {
-  .app-shell.kd-home .welcome-copy h1 { margin: 12px 0; font-size: 48px; }
+  .app-shell.kd-home .welcome-copy h1 { margin: 8px 0; font-size: 48px; }
   .app-shell.kd-home .entry-card { padding-top: 16px; padding-bottom: 20px; }
   .app-shell.kd-home :is(.section-kicker, .step-indicator, .entry-footnote, .online-rooms-note) { display: none; }
   .app-shell.kd-home .mode-switch { margin-top: 8px; }
@@ -316,12 +325,20 @@
   .app-shell.kd-home .entry-card .primary-button { margin-top: 14px; }
   .kd-home .welcome-grid { padding: 12px 0; }
   .app-shell.kd-home .entry-form .field-hint { display: none; }
+  .app-shell.kd-home .welcome-copy { padding: 16px 20px; }
+  .app-shell.kd-home .kd-showcase { margin-top: 12px; }
 }
 @media (min-width: 900px) and (max-height: 720px) {
   .kd-home-points { display: none; }
+  .app-shell.kd-home .kd-showcase { display: none; }
   .app-shell.kd-home .entry-card-heading { display: none; }
   .app-shell.kd-home .mode-switch { margin-top: 0; }
   .app-shell.kd-home .entry-card .primary-button { min-height: 48px; }
+  .app-shell.kd-home .welcome-copy h1 { font-size: 36px; }
+}
+@media (min-width: 900px) and (max-width: 1100px) {
+  .kd-home .welcome-grid { grid-template-columns: minmax(0, 1fr) 380px; gap: 20px; }
+  .app-shell.kd-home .welcome-copy h1 { font-size: 36px; }
 }
 @media (max-width: 899px) {
   .app-shell.kd-home { width: calc(100% - 32px); }
@@ -330,24 +347,23 @@
   .kd-home .welcome-copy > * { order: 1; }
   .kd-home .kd-home-side { display: contents; }
   .kd-home .entry-card { order: 2; }
-  .app-shell.kd-home .kd-hero { order: 3; width: 100%; max-width: 512px; margin: 0 auto; background-size: cover; }
   .kd-home-points { order: 4; }
   .kd-home .online-rooms { order: 5; }
+  /* 手机上介绍文字直接压在场景上会看不清：每块都给底色 */
+  .app-shell.kd-home .welcome-copy > :is(h1, .welcome-description, .kd-home-points, .kd-showcase) { margin: 0; padding: 8px 12px; background: var(--panel); box-shadow: 0 0 0 var(--px) var(--edge); }
   .app-shell.kd-home .welcome-copy h1 { margin: 0; }
+  .app-shell.kd-home .kd-showcase { display: none; }
   .app-shell.kd-home :is(.eyebrow, .section-kicker, .step-indicator, .entry-footnote) { display: none; }
   .app-shell.kd-home .entry-card { padding: 16px; }
   .kd-home .topbar { height: 56px; }
   .app-shell.kd-home .mode-switch { margin-top: 8px; }
 }
-@media (max-width: 559px) {
-  .app-shell.kd-home .kd-hero { height: 200px; }
-  .app-shell .kd-showcase { gap: 4px; bottom: 10px; }
-}
 
 /* ---------- 等候房间：一屏放下 ---------- */
 .app-shell.kd-room { width: min(1440px, calc(100% - 48px)); }
 .kd-room .room-layout { display: flex; width: 100%; min-height: 0; flex-direction: column; padding: 24px 0 16px; }
-.kd-room .room-heading { margin-bottom: 20px; }
+.kd-room .room-heading { --rim: #6a4f37; margin-bottom: 20px; padding: 12px 16px; background: var(--panel); }
+.app-shell.kd-room .topbar { border-bottom-color: rgba(106, 79, 55, 0.6); }
 .kd-room .room-heading h1 { margin-top: 8px; }
 .kd-room .room-grid { grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr) minmax(0, 1fr); gap: 16px; align-items: start; }
 .kd-room .player-details strong { font-size: 24px; line-height: 1.25; }
@@ -360,7 +376,7 @@
 .kd-room-chat { display: flex; min-height: 0; align-self: stretch; }
 .app-shell.kd-room .room-chat { display: flex; flex: 1 1 auto; min-height: 0; flex-direction: column; margin: 0; }
 .app-shell.kd-room .room-chat-list { flex: 1 1 auto; height: auto; min-height: 120px; }
-.kd-room .room-feedback { margin: 12px 0 0; }
+.kd-room .room-feedback { --rim: #6a4f37; width: fit-content; max-width: 100%; margin: 12px auto 0; padding: 4px 12px; background: var(--panel); }
 .kd-room .room-secure-note { display: none; }
 .kd-options { display: grid; gap: 8px; margin-top: 16px; }
 .app-shell .kd-options .room-setting { justify-content: flex-start; padding: 8px 10px; text-align: left; }
@@ -368,7 +384,7 @@
 .kd-options .room-setting b { font-size: 24px; font-weight: 400; line-height: 1.1; }
 .kd-options .room-setting small { color: var(--muted); font-size: 12px; }
 @media (min-width: 760px) {
-  .app-shell.kd-room { height: 100vh; height: 100dvh; min-height: 0; }
+  .app-shell.kd-room { height: 100vh; height: 100dvh; min-height: 0; overflow: hidden; }
   .kd-room .topbar { flex: 0 0 auto; height: 64px; }
   .kd-room .room-layout { flex: 1 1 auto; }
   .kd-room .room-grid { flex: 1 1 auto; min-height: 0; }

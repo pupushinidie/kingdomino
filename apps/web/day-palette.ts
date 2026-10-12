@@ -41,6 +41,6 @@ export const palette: DayPalette = {
     "--ok": "#1f8a45",
     "--bad": "#d1303f",
   },
-  // 骨牌上的「已放 / 弃掉」小牌保持深底浅字
-  keep: [".kd-slot-state", ".kd-discard-badge"],
+  // 骨牌上的「已放 / 弃掉」小牌保持深底浅字；铺满窗口的场景背景容器色由 theme-day.css 手调
+  keep: [".kd-slot-state", ".kd-discard-badge", ".kd-backdrop"],
 };
